@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Absen XII TKJ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: linear-gradient(to bottom right, #e0f7fa, #ffffff);
+      position: relative;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8em;
+      color: #00796b;
+    }
+    label, select, input {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 1em;
+    }
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      width: 60px;
+      height: 60px;
+      font-size: 0.8em;
+      padding: 0;
+      border: none;
+      border-radius: 10px;
+      background-color: #009688;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #00796b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 0.9em;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+    th {
+      background-color: #004d40;
+      color: white;
+    }
+    @media screen and (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        display: none;
+      }
+      tr {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+      td {
+        text-align: left;
+        position: relative;
+        padding-left: 50%;
+      }
+      td::before {
+        position: absolute;
+        top: 8px;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+      }
+      td:nth-of-type(1)::before { content: "Nama"; }
+      td:nth-of-type(2)::before { content: "Tanggal"; }
+      td:nth-of-type(3)::before { content: "Keterangan"; }
+    }
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 0.8em;
+      color: #888;
+      opacity: 0.7;
+    }
+    .logo {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 80px; /* Diperbesar dari 50px */
+    }
+  </style>
+</head>
+<body>
+  <img src="logo.png" alt="Logo TKJ" class="logo" />
+  <div class="watermark">CREATOR MOTION</div>
+  <h1>Rekap Absen</h1>
+
+  <label for="nama">Nama:</label>
+  <select id="nama">
+    <option>AHLAN FIRMANSYAH</option>
+    <option>GERALDO SEPTIANTO</option>
+    <option>KEVIN LIMARDI</option>
+    <option>JEFFREY NEILSEN</option>
+    <option>M.DAFFA</option>
+    <option>M.HAFIDZ</option>
+    <option>ILHAM CAHYADI</option>
+    <option>M.FAZRI PRATAMA</option>
+    <option>REYHAN</option>
+    <option>FOOTY PATRA WISESA</option>
+    <option>MUHAMMAD FADHIL</option>
+    <option>ENOS IMANUEL</option>
+    <option>NIGEL GARCILANO</option>
+    <option>DEVRIANSYAH</option>
+    <option>FELLIX FIORELLO</option>
+    <option>ALVIN LAURENZO</option>
+    <option>DYLAN ETHANAEL</option>
+    <option>ANDREAS STANLEY</option>
+    <option>CRISDY LIM DENATA</option>
+    <option>CHRISTOPHER</option>
+  </select>
+
+  <label for="tanggal">Tanggal:</label>
+  <input type="date" id="tanggal" />
+
+  <div class="btn-container">
+    <button onclick="tambahAbsen('Sakit')">Sakit</button>
+    <button onclick="tambahAbsen('Izin')">Izin</button>
+    <button onclick="tambahAbsen('Alpa')">Alpa</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody id="tabel-absen">
+    </tbody>
+  </table>
+
+  <div class="btn-container">
+    <button onclick="resetTabel()">Reset</button>
+    <button onclick="kirimWhatsApp()">Kirim</button>
+  </div>
+
+  <script>
+    function simpanKeLocalStorage() {
+      const rows = document.querySelectorAll("#tabel-absen tr");
+      let data = [];
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td");
+        data.push({
+          nama: cols[0].innerText,
+          tanggal: cols[1].innerText,
+          keterangan: cols[2].innerText
+        });
+      });
+      localStorage.setItem("dataAbsen", JSON.stringify(data));
+    }
+
+    function muatDariLocalStorage() {
+      const data = JSON.parse(localStorage.getItem("dataAbsen")) || [];
+      data.forEach(item => {
+        const tabel = document.getElementById("tabel-absen");
+        const row = tabel.insertRow();
+        row.insertCell(0).innerText = item.nama;
+        row.insertCell(1).innerText = item.tanggal;
+        row.insertCell(2).innerText = item.keterangan;
+      });
+    }
+
+    function tambahAbsen(keterangan) {
+      const nama = document.getElementById("nama").value;
+      const tanggal = document.getElementById("tanggal").value || new Date().toISOString().split('T')[0];
+      const tabel = document.getElementById("tabel-absen");
+
+      const row = tabel.insertRow();
+      row.insertCell(0).innerText = nama;
+      row.insertCell(1).innerText = tanggal;
+      row.insertCell(2).innerText = keterangan;
+
+      simpanKeLocalStorage();
+    }
+
+    function resetTabel() {
+      const tabel = document.getElementById("tabel-absen");
+      tabel.innerHTML = "";
+      localStorage.removeItem("dataAbsen");
+    }
+
+    function kirimWhatsApp() {
+      const rows = document.querySelectorAll("#tabel-absen tr");
+      let pesan = "Rekap Absen:%0A";
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td");
+        const nama = cols[0]?.innerText || "";
+        const tanggal = cols[1]?.innerText || "";
+        const ket = cols[2]?.innerText || "";
+        pesan += `Nama: ${nama} | Tanggal: ${tanggal} | Keterangan: ${ket}%0A`;
+      });
+
+      const noWa = "6289505857065";
+      window.open(`https://wa.me/${noWa}?text=${pesan}`, "_blank");
+    }
+
+    window.onload = muatDariLocalStorage;
+  </script>
+</body>
+</html>
